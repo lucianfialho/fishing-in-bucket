@@ -60,12 +60,12 @@ node index.js -u seu_usuario_instagram -p sua_senha_instagram -s sua_chave_api_o
 - `-f, --file <file>`: Arquivo CSV contendo os perfis.
 - `-P, --profiles <profiles>`: Lista de perfis separados por vírgula.
 - `-d, --driver <driver>`: Driver a ser usado (instagram, twitter, linkedin).
-- `-t, --theme <theme>`: Tema a ser verificado nas postagens antes de comentar.
+- `-o, --output_language <output_language>:` Idioma de saída para os comentários. Padrão é en (inglês).
 
 ### Exemplo
 
 ```bash
-node index.js -u seu_usuario_instagram -p sua_senha_instagram -s sua_chave_api_openai -P lucianfialho,outroperfil -d instagram -t sneakers
+node index.js -u seu_usuario_instagram -p sua_senha_instagram -s sua_chave_api_openai -P lucianfialho,outroperfil -d instagram -t sneakers -o pt-br
 ```
 
 ## Estrutura do Projeto
