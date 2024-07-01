@@ -1,0 +1,21 @@
+{
+    "name": "fishing-in-bucket",
+    "version": "1.0.0",
+    "description": "A tool to monitor social media profiles and interact with posts.",
+    "main": "index.js",
+    "scripts": {
+      "start": "node index.js"
+    },
+    "author": "Seu Nome",
+    "license": "MIT",
+    "dependencies": {
+      "commander": "^9.0.0",
+      "csv-parser": "^3.0.0",
+      "dotenv": "^10.0.0",
+      "openai": "^4.27.0",
+      "puppeteer-extra": "^3.1.18",
+      "puppeteer-extra-plugin-stealth": "^2.7.8",
+      "cli-progress": "^3.9.0"
+    }
+  }
+  
