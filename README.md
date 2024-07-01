@@ -1,5 +1,4 @@
-
-# Social Media Comment Bot
+# fishing-in-bucket
 
 Este projeto é um bot de comentários para redes sociais que utiliza Puppeteer e OpenAI para interagir com postagens em plataformas como Instagram. O bot navega até o perfil de um usuário, verifica o conteúdo da última postagem, analisa se a postagem é relevante para um tema específico e faz um comentário apropriado.
 
@@ -11,16 +10,19 @@ Este projeto é um bot de comentários para redes sociais que utiliza Puppeteer 
 ## Instalação
 
 1. Clone este repositório:
+
    ```bash
    git clone https://github.com/seu_usuario/social-media-comment-bot.git
    cd social-media-comment-bot
    ```
 
 2. Instale as dependências:
+
    ```bash
    npm install
    # ou
    yarn install
+
    ```
 
 3. Crie um arquivo `.env` na raiz do projeto e adicione as seguintes variáveis de ambiente:
