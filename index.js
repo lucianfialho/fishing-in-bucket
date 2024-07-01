@@ -29,6 +29,11 @@ program
     "-d, --driver <driver>",
     "Driver to use (instagram, twitter, linkedin)"
   )
+  .option(
+    "-o, --output_language <output_language>",
+    "Output language for the comments",
+    "en"
+  )
   .parse(process.argv);
 
 const options = program.opts();
@@ -44,6 +49,7 @@ const driver = drivers[options.driver];
 const username = options.username || process.env.INSTAGRAM_USERNAME;
 const password = options.password || process.env.INSTAGRAM_PASSWORD;
 const openaiApiKey = options.openai_secret || process.env.OPENAI_SECRET;
+const outputLanguage = options.output_language;
 
 if (!username || !password || !openaiApiKey) {
   console.error(
@@ -61,10 +67,16 @@ if (options.file) {
       .pipe(csv())
       .on("data", (row) => {
         if (row.profile_url) {
-          profiles.push(row.profile_url);
+          profiles.push(row.profile_url.trim());
+        } else {
+          console.warn(`Row without profile_url: ${JSON.stringify(row)}`);
         }
       })
       .on("end", () => {
+        if (profiles.length === 0) {
+          console.error("No profiles loaded from CSV file.");
+          process.exit(1);
+        }
         console.log(`Profiles loaded from CSV file ${options.file}:`, profiles);
         askPrompts();
       });
@@ -73,7 +85,11 @@ if (options.file) {
     process.exit(1);
   }
 } else if (options.profiles) {
-  profiles = options.profiles.split(",");
+  profiles = options.profiles.split(",").map((profile) => profile.trim());
+  if (profiles.length === 0) {
+    console.error("No profiles provided in the command line argument.");
+    process.exit(1);
+  }
   console.log(`Profiles loaded from command line argument:`, profiles);
   askPrompts();
 } else {
@@ -105,7 +121,7 @@ async function checkContent(postContent, persona) {
   }
 }
 
-async function interact(postContent, prompt, persona) {
+async function interact(postContent, prompt, persona, language) {
   try {
     const response = await openai.chat.completions.create({
       model: "gpt-3.5-turbo",
@@ -114,7 +130,10 @@ async function interact(postContent, prompt, persona) {
       top_p: 1,
       messages: [
         { role: "system", content: persona },
-        { role: "user", content: `${prompt}: ${postContent}` },
+        {
+          role: "user",
+          content: `Write a short, friendly comment about this post in ${language}: ${postContent}`,
+        },
       ],
     });
 
@@ -130,7 +149,8 @@ async function socialMediaSearchAndComment(
   profile,
   checkPrompt,
   interactPrompt,
-  persona
+  persona,
+  language
 ) {
   try {
     await driver.goToProfilePage(page, profile);
@@ -149,7 +169,12 @@ async function socialMediaSearchAndComment(
       }
 
       const isRelevant = await checkContent(postContent, persona);
-      const comment = await interact(postContent, interactPrompt, persona);
+      const comment = await interact(
+        postContent,
+        interactPrompt,
+        persona,
+        language
+      );
 
       if (comment) {
         await driver.commentOnPost(page, comment);
@@ -215,13 +240,19 @@ async function askPrompts() {
 
   await interactPromptQuestion;
 
-  run(prompts.check, prompts.interact, prompts.persona);
+  run(
+    prompts.check,
+    prompts.interact,
+    prompts.persona,
+    options.output_language
+  );
 }
 
 async function run(
   checkPrompt = defaultPrompts.check,
   interactPrompt = defaultPrompts.interact,
-  persona = defaultPrompts.persona
+  persona = defaultPrompts.persona,
+  language
 ) {
   const [browser, page] = await setupBrowser(options.headless);
 
@@ -233,14 +264,15 @@ async function run(
     while (true) {
       const profile = profiles[profileIndex];
       profileIndex = (profileIndex + 1) % profiles.length; // Alterna para o próximo perfil
-      console.log(profiles[profileIndex]);
+
       try {
         await socialMediaSearchAndComment(
           page,
           profile,
           checkPrompt,
           interactPrompt,
-          persona
+          persona,
+          language
         );
       } catch (error) {
         console.error(`Error during processing profile ${profile}:`, error);
