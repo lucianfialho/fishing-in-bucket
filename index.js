@@ -244,10 +244,10 @@ async function run(
         );
       } catch (error) {
         console.error(`Error during processing profile ${profile}:`, error);
-        await delay(1 * 60 * 1000); // Wait 5 minutes before retrying
+        await delay(5 * 60 * 1000); // Wait 5 minutes before retrying
       }
 
-      await delay(1 * 60 * 1000); // Wait 5 minutes before checking again
+      await delay(5 * 60 * 1000); // Wait 5 minutes before checking again
     }
   } catch (error) {
     console.error("Error during script execution:", error);
